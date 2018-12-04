@@ -39,68 +39,52 @@ class WhenValue():
 
 class NopDecodeListener():
 
-    def __init__(self, debug=False):
-        self.debug = debug
-
     def listen_decode(self, name):
-        if self.debug:
-            print("decoder", name)
         return True
 
     def listen_field(self, name, start, run):
-        if self.debug:
-            print("field", name, start, run)
         return True
 
     def listen_case(self, fields):
-        if self.debug:
-            print("case", fields)
         return True
 
     def listen_when(self, values):
-        if self.debug:
-            print("when", values)
         return True
 
     def listen_encoding(self, name):
-        if self.debug:
-            print("encoding")
         return True
 
     def listen_undocumented(self):
-        if self.debug:
-            print("undocumented")
         return True
 
     def listen_unallocated(self):
-        if self.debug:
-            print("unallocated")
         return True
 
     def listen_unused(self):
-        if self.debug:
-            print("unused")
         return True
 
 
 class NopInstrsListener():
 
-    def __init__(self, debug=False):
-        self.debug = debug
-
     def listen_instruction(self, name):
-        if self.debug:
-            print("instruction", name)
         return True
 
     def listen_encoding(self, name):
-        if self.debug:
-            print("encoding", name)
+        return True
+
+    def listen_encode(self, code):
+        return True
+
+    def listen_decode(self, code):
+        return True
+
+    def listen_shared_encode(self, code):
+        return True
+
+    def listen_shared_decode(self, code):
         return True
 
     def listen_execute(self, code):
-        if self.debug:
-            print("execute", code)
         return True
 
 
