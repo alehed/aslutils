@@ -269,7 +269,7 @@ def parse_asl(string, fields):
     # print(lisp_tree_str)
     variables = {}
     for field in fields:
-        variables[field[0]] = (True, ASLType(ASLType.Kind.bits, field[2]), None)
+        variables[field[0]] = (True, ASLType(ASLType.Kind.bits, field[1]), None)
     visitor = MyVisitor(variables)
     generated_code = visitor.visit(tree)
     return visitor.variables, generated_code
