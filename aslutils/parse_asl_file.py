@@ -160,12 +160,12 @@ def extract_code(tree, result):
                 or line.startswith("case") or line.startswith("when") or line.startswith("otherwise") \
                 or line.startswith("repeat") or line.startswith("while") or line.startswith("for")
             if add_start:
-                result.append("START")
+                result.append(" START ")
             result += extract_code(child[0], result)
             if add_start:
-                result.append("END")
+                result.append(" END ")
         else:
-            result.append("NEWLINE")
+            result.append(" NEWLINE ")
     return result
 
 
