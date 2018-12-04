@@ -78,7 +78,8 @@ class MyVisitor(ASLVisitor):
                     type = ASLType(ASLType.Kind.bits)
                 if name not in self.variables:
                     self.variables[name] = (False, type, self.value_visitor.visit(ctx.expression(0)))
-                    result.append("{0} {1} = {2};".format(type.c_type(), name, expr_code))
+                    if self.variables[name][2] is None:
+                        result.append("{0} {1} = {2};".format(type.c_type(), name, expr_code))
                 else:
                     result.append("{0} = {1};".format(name, expr_code))
             else:
