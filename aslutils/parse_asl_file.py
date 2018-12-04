@@ -175,6 +175,18 @@ def visit_instructions_listing(tree, listener):
         if line == "__execute":
             code = extract_code(child[0], [])
             visitChildren = listener.listen_execute(" ".join(code))
+        elif line.startswith("__encode"):
+            code = extract_code(child[0], [])
+            visitChildren = listener.listen_encode(" ".join(code))
+        elif line.startswith("__decode"):
+            code = extract_code(child[0], [])
+            visitChildren = listener.listen_decode(" ".join(code))
+        elif line.startswith("__shared_encode"):
+            code = extract_code(child[0], [])
+            visitChildren = listener.listen_shared_encode(" ".join(code))
+        elif line.startswith("__shared_decode"):
+            code = extract_code(child[0], [])
+            visitChildren = listener.listen_shared_decode(" ".join(code))
         elif line.startswith("__encoding"):
             m = re.fullmatch(r"__encoding ([a-zA-Z]\w*)", line)
             assert m
