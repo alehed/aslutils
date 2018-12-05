@@ -78,10 +78,10 @@ class NopInstrsListener():
     def listen_decode(self, code):
         return True
 
-    def listen_shared_encode(self, code):
+    def listen_postencode(self, code):
         return True
 
-    def listen_shared_decode(self, code):
+    def listen_postdecode(self, code):
         return True
 
     def listen_execute(self, code):
@@ -165,12 +165,12 @@ def visit_instructions_listing(tree, listener):
         elif line.startswith("__decode"):
             code = extract_code(child[0], [])
             visitChildren = listener.listen_decode(" ".join(code))
-        elif line.startswith("__shared_encode"):
+        elif line.startswith("__postencode"):
             code = extract_code(child[0], [])
-            visitChildren = listener.listen_shared_encode(" ".join(code))
-        elif line.startswith("__shared_decode"):
+            visitChildren = listener.listen_postencode(" ".join(code))
+        elif line.startswith("__postdecode"):
             code = extract_code(child[0], [])
-            visitChildren = listener.listen_shared_decode(" ".join(code))
+            visitChildren = listener.listen_postdecode(" ".join(code))
         elif line.startswith("__encoding"):
             m = re.fullmatch(r"__encoding ([a-zA-Z]\w*)", line)
             assert m
