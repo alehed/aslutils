@@ -111,7 +111,7 @@ def visit_decoder_tree(tree, listener):
             assert m
             if listener.listen_decode(m.groups()[0]):
                 visit_decoder_tree(child[0], listener)
-            listener.listen_after_decode(m.groups()[0])
+            listener.after_listen_decode(m.groups()[0])
         elif line.startswith("__field"):
             m = re.fullmatch(r"__field ([a-zA-Z]\w*) (\d+) \+: (\d+)", line)
             assert m
