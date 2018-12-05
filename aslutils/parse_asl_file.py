@@ -43,7 +43,7 @@ class NopDecodeListener():
         return True
 
     def listen_field(self, name, start, run):
-        return True
+        pass
 
     def listen_case(self, fields):
         return True
@@ -52,16 +52,25 @@ class NopDecodeListener():
         return True
 
     def listen_encoding(self, name):
-        return True
+        pass
 
     def listen_undocumented(self):
         return True
 
     def listen_unallocated(self):
-        return True
+        pass
 
     def listen_unused(self):
-        return True
+        pass
+
+    def after_listen_decode(self, name):
+        pass
+
+    def after_listen_case(self, fields):
+        pass
+
+    def after_listen_when(self, values):
+        pass
 
 
 class NopInstrsListener():
@@ -73,19 +82,25 @@ class NopInstrsListener():
         return True
 
     def listen_encode(self, code):
-        return True
+        pass
 
     def listen_decode(self, code):
-        return True
+        pass
 
     def listen_postencode(self, code):
-        return True
+        pass
 
     def listen_postdecode(self, code):
-        return True
+        pass
 
     def listen_execute(self, code):
-        return True
+        pass
+
+    def after_listen_instruction(self, name):
+        pass
+
+    def after_listen_encoding(self, name):
+        pass
 
 
 def visit_decoder_tree(tree, listener):
@@ -94,12 +109,14 @@ def visit_decoder_tree(tree, listener):
         if line.startswith("__decode"):
             m = re.fullmatch(r"__decode ([a-zA-Z]\w*)", line)
             assert m
-            visitChildren = listener.listen_decode(m.groups()[0])
+            if listener.listen_decode(m.groups()[0]):
+                visit_decoder_tree(child[0], listener)
+            listener.listen_after_decode(m.groups()[0])
         elif line.startswith("__field"):
             m = re.fullmatch(r"__field ([a-zA-Z]\w*) (\d+) \+: (\d+)", line)
             assert m
             groups = m.groups()
-            visitChildren = listener.listen_field(groups[0], int(groups[1]), int(groups[2]))
+            listener.listen_field(groups[0], int(groups[1]), int(groups[2]))
         elif line.startswith("case"):
             m = re.fullmatch(r"case \(((?:(\d+) \+: (\d+)|[a-zA-Z]\w*)(?:, (?:(\d+) \+: (\d+)|[a-zA-Z]\w*))*)\) of", line)
             assert m
@@ -107,7 +124,9 @@ def visit_decoder_tree(tree, listener):
             res_fields = []
             for field in fields:
                 res_fields.append(CaseField(field))
-            visitChildren = listener.listen_case(res_fields)
+            if listener.listen_case(res_fields):
+                visit_decoder_tree(child[0], listener)
+            listener.after_listen_case(res_fields)
         elif line.startswith("when"):
             m = re.match(r"when \(((?:_|!?'[01x]+'|'[01x]+' to '[01x]+')(?:, (?:_|!?'[01x]+'|'[01x]+' to '[01x]+'))*)\) =>", line)
             assert m
@@ -118,21 +137,21 @@ def visit_decoder_tree(tree, listener):
             visitChildren = listener.listen_when(values)
             if visitChildren and line[m.end():] != "":
                 visit_decoder_tree([([], line[m.end():].strip())], listener)
+            elif visitChildren:
+                visit_decoder_tree(child[0], listener)
+            listener.after_listen_when(values)
         elif line.startswith("__encoding"):
             m = re.fullmatch(r"__encoding ([a-zA-Z]\w*)", line)
             assert m
-            visitChildren = listener.listen_encoding(m.groups()[0])
+            listener.listen_encoding(m.groups()[0])
         elif line == "__UNDOCUMENTED":
-            visitChildren = listener.listen_undocumented()
+            listener.listen_undocumented()
         elif line == "__UNALLOCATED":
-            visitChildren = listener.listen_unallocated()
+            listener.listen_unallocated()
         elif line == "__UNUSED":
-            visitChildren = listener.listen_unused()
+            listener.listen_unused()
         else:
             print("Unexpected decoder input: :{0}:".format(line), file=sys.stderr)
-            visitChildren = False
-        if visitChildren:
-            visit_decoder_tree(child[0], listener)
 
 
 def extract_code(tree, result):
@@ -158,31 +177,31 @@ def visit_instructions_listing(tree, listener):
         line = child[1]
         if line == "__execute":
             code = extract_code(child[0], [])
-            visitChildren = listener.listen_execute(" ".join(code))
+            listener.listen_execute(" ".join(code))
         elif line.startswith("__encode"):
             code = extract_code(child[0], [])
-            visitChildren = listener.listen_encode(" ".join(code))
+            listener.listen_encode(" ".join(code))
         elif line.startswith("__decode"):
             code = extract_code(child[0], [])
-            visitChildren = listener.listen_decode(" ".join(code))
+            listener.listen_decode(" ".join(code))
         elif line.startswith("__postencode"):
             code = extract_code(child[0], [])
-            visitChildren = listener.listen_postencode(" ".join(code))
+            listener.listen_postencode(" ".join(code))
         elif line.startswith("__postdecode"):
             code = extract_code(child[0], [])
-            visitChildren = listener.listen_postdecode(" ".join(code))
+            listener.listen_postdecode(" ".join(code))
         elif line.startswith("__encoding"):
             m = re.fullmatch(r"__encoding ([a-zA-Z]\w*)", line)
             assert m
-            visitChildren = listener.listen_encoding(m.groups()[0])
+            if listener.listen_encoding(m.groups()[0]):
+                visit_instructions_listing(child[0], listener)
+            listener.after_listen_encoding(m.groups()[0])
         elif line.startswith("__instruction"):
             m = re.fullmatch(r"__instruction ([a-zA-Z]\w*)", line)
             assert m
-            visitChildren = listener.listen_instruction(m.groups()[0])
-        else:  # Code content
-            visitChildren = False
-        if visitChildren:
-            visit_instructions_listing(child[0], listener)
+            if listener.listen_instruction(m.groups()[0]):
+                visit_instructions_listing(child[0], listener)
+            listener.after_listen_instruction(m.groups()[0])
 
 
 # returns a list of tuples (indentation, line)
