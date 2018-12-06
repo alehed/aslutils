@@ -41,7 +41,7 @@ setuptools.setup(
     description="Code to parse Arm Specification Language (ASL) files",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://code.systems.ethz.ch/diffusion/ASLUTIL/aslutils.git",
+    url="https://github.com/alehed/aslutils.git",
     packages=setuptools.find_packages(),
     install_requires=['antlr4-python3-runtime{0}'.format(antlr_version)],
     classifiers=[
