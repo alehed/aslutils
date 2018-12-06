@@ -35,7 +35,7 @@ with open("readme.md", "r") as fh:
 
 setuptools.setup(
     name="aslutils",
-    version="0.0.1",
+    version="0.0.2",
     author="Alexander Hedges",
     author_email="ahedges@ethz.ch",
     description="Code to parse Arm Specification Language (ASL) files",
@@ -44,7 +44,10 @@ setuptools.setup(
     url="https://github.com/alehed/aslutils.git",
     packages=setuptools.find_packages(),
     install_requires=['antlr4-python3-runtime{0}'.format(antlr_version)],
+    python_requires='>=3',
     classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
