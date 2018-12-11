@@ -2,6 +2,30 @@ import re
 import sys
 
 
+def mask_bits(bitstring):
+    """Returns an int corresponding to the bitmask of the bitpattern
+
+    For example "100xx01" is translated to 0b1110011.
+
+    :returns: The integer value where only don't cares are mapped to 0
+    :rtype: int
+    """
+
+    return int(bitstring.translate({ord('x'): '0', ord('0'): '1'}), 2)
+
+
+def value_bits(bitstring):
+    """Returns an int corresponding to the value of the bitpattern
+
+    For example "100xx01" is translated to 0b1000001.
+
+    :returns: The integer value of the bit pattern interpreted without don't care values
+    :rtype: int
+    """
+
+    return int(bitstring.translate({ord('x'): '0'}), 2)
+
+
 class CaseField():
     """Represents one field of a case statement
 
@@ -66,8 +90,8 @@ class WhenValue():
     :vartype self.notvalue: str or None
     :ivar self.value: The bit-pattern (without the single quotes) if bit pattern
     :vartype self.value: str or None
-    :ivar self.range: The bit patterns of start and end if range. The range is inclusive.
-    :vartype self.range: (str, str) or None
+    :ivar self.range: The start and end (inclusive) of the range if range.
+    :vartype self.range: (int, int) or None
     """
 
     def __init__(self, str_repr):
@@ -84,7 +108,9 @@ class WhenValue():
             if len(literals) == 1:
                 self.value = literals[0][1:-1]
             elif len(literals) == 2:
-                self.range = (literals[0][1:-1], literals[1][1:-1])
+                assert 'x' not in literals[0]
+                assert 'x' not in literals[1]
+                self.range = (int(literals[0][1:-1], 2), int(literals[1][1:-1], 2))
             else:
                 assert False
 
