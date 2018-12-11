@@ -10,7 +10,7 @@ To install simply use pip: `pip3 install aslutils`.
 
 ## Using aslutils
 
-The documentation can be found
+The documentation can be found at <https://aslutils.readthedocs.io/en/latest/>
 
 ## Developing
 
