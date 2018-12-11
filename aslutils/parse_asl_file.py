@@ -3,6 +3,29 @@ import sys
 
 
 class CaseField():
+    """Represents one field of a case statement
+
+    An example case statement line with 3 fields::
+
+        case (op, 25 +: 3, id_t) of
+
+    The class represents one of the following:
+
+     * A named field (if intialized with "op" or "id_t").
+     * An implicit range (if initialized with "25 +: 3").
+
+    The result of initializing with invalid input is not defined.
+
+    :param str_repr: The string in ASL syntax, it does not contain the comma or paren
+    :type str_repr: str
+
+    :ivar self.name: The name of the field if named field
+    :vartype self.name: str or None
+    :ivar self.start: The start of the implicit range if implicit range
+    :vartype self.start: int or None
+    :ivar self.run: The run of the implicit range if implicit range
+    :vartype self.run: int or None
+    """
 
     def __init__(self, str_repr):
         self.name = None
@@ -18,6 +41,34 @@ class CaseField():
 
 
 class WhenValue():
+    """Represents one value of a when statement
+
+    An example when statement line with 4 values::
+
+        when (!'000', _, '0101x00', '1101' to '1111') =>
+
+    The class represents one of the following:
+
+     * Don't care (if intialized with "_").
+     * A bit-pattern (if intialized with "'0101x00'").
+     * A negated bit-pattern (if intialized with "!'000'").
+     * A range (if initialized with "'1101' to '1111'").
+
+    The result of initializing with invalid input is not defined. Note that the
+    range syntax is an extension not allowed in standard ASL.
+
+    :param str_repr: The value in ASL syntax
+    :type str_repr: str
+
+    :ivar self.empty: True if the value is a don't care
+    :vartype self.empty: bool or None
+    :ivar self.notvalue: The bit-pattern (without the single quotes) if negated bit pattern
+    :vartype self.notvalue: str or None
+    :ivar self.value: The bit-pattern (without the single quotes) if bit pattern
+    :vartype self.value: str or None
+    :ivar self.range: The bit patterns of start and end if range. The range is inclusive.
+    :vartype self.range: (str, str) or None
+    """
 
     def __init__(self, str_repr):
         self.empty = None
@@ -39,72 +90,161 @@ class WhenValue():
 
 
 class NopDecodeListener():
+    """Defines the interface of listening to decoder file traversals
+
+    Meant for subclassing and selectively overriding methods to visit decoder
+    files.
+
+    For nodes which have children (decode, case and when) the return value of
+    the corresponding function decides whether the children should be visited or
+    not. Those functions also have functions (after_listen...) that get called
+    after the children have been, or would have been visited (irrespective of
+    what the listen function returned). By default they return True.
+    """
 
     def listen_decode(self, name):
+        """Called on decode (`__decode decoding_name`), has children"""
+
         return True
 
-    def listen_field(self, name, start, run):
+    def after_listen_decode(self, name):
+        """Called after visiting decode (`__decode decoding_name`)"""
+
         pass
 
     def listen_case(self, fields):
+        """Called on case statements with a list of fields, has children
+
+        For instance `case (field_name, 5 +: 2) of` would cause it to be called
+        with an array of two fields.
+
+        :param fields: A list of fields, one for each field in the case statement
+        :type fields: [CaseField]
+        """
+
         return True
+
+    def after_listen_case(self, fields):
+        """Called after visiting case"""
+
+        pass
 
     def listen_when(self, values):
+        """Called on when statements with a list of values, has children
+
+        For instance `when ('xx10', _, _) of` would cause it to be called
+        with an array of three values.
+
+        :param fields: A list of values, one for each value in the when statement
+        :type fields: [WhenValue]
+        """
+
         return True
 
+    def after_listen_when(self, values):
+        """Called after visiting case"""
+
+        pass
+
+    def listen_field(self, name, start, run):
+        """Called on field declarations (`__field fname 0 +: 5`)"""
+
+        pass
+
     def listen_encoding(self, name):
+        """Called on encoding (`__encoding encname`)"""
+
         pass
 
     def listen_undocumented(self):
-        return True
+        """Called on undocumented directives (`__UNDOCUMENTED`)"""
+
+        pass
 
     def listen_unallocated(self):
+        """Called on unallocated directives (`__UNALLOCATED`)"""
+
         pass
 
     def listen_unused(self):
-        pass
+        """Called on unused directives (`__UNUSED`)"""
 
-    def after_listen_decode(self, name):
-        pass
-
-    def after_listen_case(self, fields):
-        pass
-
-    def after_listen_when(self, values):
         pass
 
 
 class NopInstrsListener():
+    """Defines the interface of listening to instruction file traversals
+
+    Meant for subclassing and selectively overriding methods to visit
+    instruction files.
+
+    For nodes which have children (instruction and encoding) the return value of
+    the corresponding function decides whether the children should be visited or
+    not. Those functions also have functions (after_listen...) that get called
+    after the children have been, or would have been visited (irrespective of
+    what the listen function returned). By default they return True.
+    """
 
     def listen_instruction(self, name):
+        """Called on instructions (`__instruction inst_name`), has children"""
+
         return True
+
+    def after_listen_instruction(self, name):
+        """Called after instructions (`__instruction inst_name`)"""
+
+        pass
 
     def listen_encoding(self, name):
+        """Called on encoding (`__encoding enc_name`) has children"""
+
         return True
 
+    def after_listen_encoding(self, name):
+        """Called after encoding (`__encoding enc_name`)"""
+
+        pass
+
     def listen_encode(self, code):
+        """Called on encode (`__encode`), no children"""
+
         pass
 
     def listen_decode(self, code):
+        """Called on decode (`__decode`), no children"""
+
         pass
 
     def listen_postencode(self, code):
+        """Called on postencode (`__postencode`), no children"""
+
         pass
 
     def listen_postdecode(self, code):
+        """Called on postdecode (`__postdecode`), no children"""
+
         pass
 
     def listen_execute(self, code):
-        pass
+        """Called on execute (`__execute`), no children"""
 
-    def after_listen_instruction(self, name):
-        pass
-
-    def after_listen_encoding(self, name):
         pass
 
 
 def visit_decoder_tree(tree, listener):
+    """(Internal) Traverses the given tree of a decoder file and invokes the listener
+
+    For each line it decides what kind of line it is and calls the corresponding
+    function of the listener.
+
+    :param tree: The syntax tree of the ASL decoder file where each node is tuple
+                 of ([children], line) where children is a list of zero or more
+                 child nodes and line is the line as a string stripped of all
+                 whitespace and comments.
+    :param listener: A listener object which implements the interface specified
+                     by NopDecodeListener.
+    """
+
     for child in tree:
         line = child[1]
         if line.startswith("__decode"):
@@ -156,6 +296,20 @@ def visit_decoder_tree(tree, listener):
 
 
 def extract_code(tree, result):
+    """(Internal) returns a string (split into multiple parts for efficiency) of ASL processed code extracted from the given nodes
+
+    Processed code is asl code which contains START, END, and NEWLINE tokens
+    to give it structure as opposed to indentation. This allows the code to be
+    lexed using antlr lexers.
+
+    :param tree: A list of nodes which correspond to asl code
+    :type tree: [Node] where Node is ([Node], str)
+    :param result: Partial results for recursion (in the top-level call this should be empty)
+    :type result: [str]
+    :returns: For efficiency the processed ASL code is split into pieces
+    :rtype: [str]
+    """
+
     for child in tree:
         line = child[1]
         result.append(line)
@@ -174,6 +328,19 @@ def extract_code(tree, result):
 
 
 def visit_instructions_listing(tree, listener):
+    """(Internal) Traverses the given tree of a instructions file and invokes the listener
+
+    For each line it decides what kind of line it is and calls the corresponding
+    function of the listener.
+
+    :param tree: The syntax tree of the ASL decoder file where each node is tuple
+                 of ([children], line) where children is a list of zero or more
+                 child nodes and line is the line as a string stripped of all
+                 whitespace and comments.
+    :param listener: A listener object which implements the interface specified
+                     by NopInstrsListener.
+    """
+
     for child in tree:
         line = child[1]
         if line == "__execute":
@@ -205,8 +372,18 @@ def visit_instructions_listing(tree, listener):
             listener.after_listen_instruction(m.groups()[0])
 
 
-# returns a list of tuples (indentation, line)
 def line_list(filename):
+    """(Internal) Returns a list of tuples (indentation-level, line) one for every line
+
+    Empty lines, comments and extra whitespace are striped out.
+    Indents are expected to be 4 spaces.
+
+    :param filename: Path of the asl file name (may be relative or absolute).
+    :type filename: str
+    :returns: List of every content line with the indentation-level as a tuple
+    :rtype: [(int, str)]
+    """
+
     decode_asl_file = open(filename, "r")
     lines = decode_asl_file.readlines()
     processed_lines = []
@@ -222,8 +399,23 @@ def line_list(filename):
     return processed_lines
 
 
-# A node is ([children], line)
 def tree_from_lines(lines):
+    """(Internal) Generates a tree from a set of line tuples (indent-level, line)
+
+    The following input::
+
+        [(0, "str"), (1, "str1"), (1, str2), (0, str3)]
+
+    would result in the tree::
+
+        [([([], str1), ([], str2)], str), ([], str3)]
+
+    :param lines: A list of lines where one line is the string and the indentation-level
+    :type lines: [(int, str)]
+    :returns: A correctly nested representation of the lines
+    :rtype: [Node] where Node is ([Node], str)
+    """
+
     tree = []
     current_stack = []
     for line in lines:
@@ -241,12 +433,24 @@ def tree_from_lines(lines):
 
 
 def parse_asl_decoder_file(filename, listener):
+    """Parses the given asl decoder file and invokes the listener object on each node
+
+    :param filename: A path to the decoder file
+    :type filename: str
+    :param listener: A listener object which implements the same interface as NopDecodeListener
+    """
     lines = line_list(filename)
     tree = tree_from_lines(lines)
     visit_decoder_tree(tree, listener)
 
 
 def parse_asl_instructions_file(filename, listener):
+    """Parses the given asl instruction file and invokes the listener object on each node
+
+    :param filename: A path to the instruction file
+    :type filename: str
+    :param listener: A listener object which implements the same interface as NopInstrsListener
+    """
     lines = line_list(filename)
     tree = tree_from_lines(lines)
     visit_instructions_listing(tree, listener)
