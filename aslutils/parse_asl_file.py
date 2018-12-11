@@ -12,6 +12,7 @@ class CaseField():
             self.name = str_repr
         else:
             halves = str_repr.split(" +: ")
+            assert len(halves) == 2
             self.start = int(halves[0])
             self.run = int(halves[1])
 
@@ -22,7 +23,7 @@ class WhenValue():
         self.empty = None
         self.notvalue = None
         self.value = None
-        self.values = None
+        self.range = None
         if str_repr == "_":
             self.empty = True
         elif str_repr.startswith("!"):
@@ -32,7 +33,7 @@ class WhenValue():
             if len(literals) == 1:
                 self.value = literals[0][1:-1]
             elif len(literals) == 2:
-                self.values = [literals[0][1:-1], literals[1][1:-1]]
+                self.range = (literals[0][1:-1], literals[1][1:-1])
             else:
                 assert False
 
@@ -205,8 +206,8 @@ def visit_instructions_listing(tree, listener):
 
 
 # returns a list of tuples (indentation, line)
-def line_list(file):
-    decode_asl_file = open(file, "r")
+def line_list(filename):
+    decode_asl_file = open(filename, "r")
     lines = decode_asl_file.readlines()
     processed_lines = []
     for line in lines:
@@ -239,13 +240,13 @@ def tree_from_lines(lines):
     return tree
 
 
-def parse_asl_decoder_file(name, listener):
-    lines = line_list(name)
+def parse_asl_decoder_file(filename, listener):
+    lines = line_list(filename)
     tree = tree_from_lines(lines)
     visit_decoder_tree(tree, listener)
 
 
-def parse_asl_instructions_file(name, listener):
-    lines = line_list(name)
+def parse_asl_instructions_file(filename, listener):
+    lines = line_list(filename)
     tree = tree_from_lines(lines)
     visit_instructions_listing(tree, listener)
