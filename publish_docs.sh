@@ -15,7 +15,7 @@ COMMIT=`git rev-parse HEAD`
 
 git checkout gh-pages
 
-cp -rT docs/build/ .
+cp -r docs/build/* .
 git add -A
 git commit -m "Documentation build for $COMMIT"
 git push origin gh-pages
