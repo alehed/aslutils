@@ -288,7 +288,7 @@ class CVisitor(ASLVisitor):
 
 
 def asl_to_c(string, fields):
-    """Converts the given ASL processed string into a c program snippet
+    """Converts the given processed ASL string into a c program snippet
 
     For instance the following ASL code::
 
