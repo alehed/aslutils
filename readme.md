@@ -18,13 +18,15 @@ The documentation can be found at <https://aslutils.readthedocs.io/en/latest/>
 
 `aslutils` uses sphinx (`pip install sphinx`) to generate the documentation. From the root folder the command to generate the html documentation is `sphinx-build -b html docs/source docs/build`. The docs can then be found at `docs/build/index.html`.
 
+If anything in the source changes (class names, new classes etc.) the aslutils.rst and modules.rst files have to be regenerated. This can be done via `sphinx-apidoc -f -o docs/source/ aslutils`. Do not edit those files manually as the changes will be overwritten once sphinx-apidoc is rerun.
+
 ### Build time dependencies
 
 In order to build the project locally, you need to have `antlr4` (<https://www.antlr.org/>) and the corresponding antlr4 python runtime installed (`pip install antlr4-python3-runtime==4.?.?`, the version has to match the installed antlr version).
 
 ### Building the parser
 
-The ASL visitor code is generated with `antlr4 -Dlanguage=Python3 -no-listener -visitor ./aslutils/ASL.g4`.
+The ASL visitor code is generated with `antlr4 -Dlanguage=Python3 -no-listener -visitor ./aslutils/ASL.g4`. This has to be done every time the file ASL.g4 is changed.
 
 ### Packaging
 
