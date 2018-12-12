@@ -1,0 +1,10 @@
+# .readthedocs.yml
+
+formats: []
+
+build:
+  image: latest
+
+python:
+  version: 3
+  pip_install: true
