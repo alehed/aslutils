@@ -4,6 +4,9 @@
 *Lexer.py
 *.tokens
 
+# Ignore some sphinx generated files
+.buildinfo
+.doctrees/
 
 # Created by https://www.gitignore.io/api/emacs,python
 # Edit at https://www.gitignore.io/?templates=emacs,python
