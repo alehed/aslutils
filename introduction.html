@@ -35,6 +35,109 @@
             
   <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="what-is-asl">
+<h2>What is ASL?<a class="headerlink" href="#what-is-asl" title="Permalink to this headline">¶</a></h2>
+<p>ASL stands for ARM Specification Language. When the ARM instruction set
+specification was released in machine readable format they also released tools
+to parse it and generate files in an intermediate language (think XML, but more
+readable) that is very succinct and easy to understand. This language, called
+ASL, happens to be a superset of the language they already use for the
+pseudocode that describes what the individual instructions do. Confusingly, the
+pseudocode language will also be referred to as ASL (sometimes it is also
+referred to as “pseudocode ASL” or simply pseudocode).</p>
+<p>The structure of ASL is quite similar to python in that it uses indentation to
+to structure the code.</p>
+<p>In order to be useful the ASL file can have different structures.</p>
+<div class="section" id="decoder-files">
+<h3>Decoder files<a class="headerlink" href="#decoder-files" title="Permalink to this headline">¶</a></h3>
+<p>For instance there is the decoder asl file which describes the decoding tree of
+an instruction. The top level directive of a decoding tree is <cite>__decode</cite> which
+specifies the “instruction set”. Inside of that there are nested case
+statements (each with a couple of when cases) which cover all the possible
+encodings. In the last leaf when statements it is either specified that the
+encoding is invalid or what the encoding is called.</p>
+</div>
+<div class="section" id="instruction-files">
+<h3>Instruction files<a class="headerlink" href="#instruction-files" title="Permalink to this headline">¶</a></h3>
+<p>Another type of asl file is an instruction file where all the encodings are
+described in more detail. For instance each encoding can have associated
+pseudocode for encoding and decoding. Also encodings can be grouped into
+instructions which share pseudocode for encoding/decoding and pseudocode that
+describes the execution of the instruction.</p>
+<p>For examples of how these files look, please take a look at the next section.</p>
+</div>
+</div>
+<div class="section" id="example-files">
+<h2>Example files<a class="headerlink" href="#example-files" title="Permalink to this headline">¶</a></h2>
+<p>Lets look a at simple example of an encoding for three instructions:</p>
+<blockquote>
+<div><ul class="simple">
+<li>add (opcode: 01100000)</li>
+<li>increment (opcode: 10000000)</li>
+<li>subtract (opcode: 01000000)</li>
+</ul>
+</div></blockquote>
+<p>We are decoding a four byte word. Increment takes the second byte as an operand.
+Add and subtract take the last two bytes as operands.</p>
+<p>The example decoder file would look like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">__decode</span> <span class="n">arithmetic</span>
+    <span class="n">case</span> <span class="p">(</span><span class="mi">30</span> <span class="o">+</span><span class="p">:</span> <span class="mi">2</span><span class="p">)</span> <span class="n">of</span>
+        <span class="n">when</span> <span class="p">(</span><span class="s1">&#39;00&#39;</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="n">__UNUSED</span>
+        <span class="n">when</span> <span class="p">(</span><span class="s1">&#39;01&#39;</span><span class="p">)</span> <span class="o">=&gt;</span>
+            <span class="n">__field</span> <span class="n">op</span> <span class="mi">29</span> <span class="o">+</span><span class="p">:</span> <span class="mi">2</span>
+            <span class="n">__field</span> <span class="n">operand1</span> <span class="mi">8</span> <span class="o">+</span><span class="p">:</span> <span class="mi">8</span>
+            <span class="n">__field</span> <span class="n">operand2</span> <span class="mi">0</span> <span class="o">+</span><span class="p">:</span> <span class="mi">8</span>
+            <span class="n">case</span> <span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">hi</span><span class="p">)</span> <span class="n">of</span>
+                <span class="n">when</span> <span class="p">(</span><span class="s1">&#39;10&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="n">__encoding</span> <span class="n">subtract</span>
+                <span class="n">when</span> <span class="p">(</span><span class="s1">&#39;11&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="n">__encoding</span> <span class="n">add</span>
+        <span class="n">when</span> <span class="p">(</span><span class="s1">&#39;10&#39;</span><span class="p">)</span> <span class="o">=&gt;</span>
+            <span class="n">__field</span> <span class="n">op</span> <span class="mi">24</span> <span class="o">+</span><span class="p">:</span> <span class="mi">8</span>
+            <span class="n">field</span> <span class="n">operand</span> <span class="mi">16</span> <span class="o">+</span><span class="p">:</span> <span class="mi">8</span>
+            <span class="n">case</span> <span class="p">()</span> <span class="n">of</span>
+                <span class="n">when</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="n">__encoding</span> <span class="n">increment</span>
+        <span class="n">when</span> <span class="p">(</span><span class="s1">&#39;11&#39;</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="n">__UNUSED</span>
+</pre></div>
+</div>
+<p>Since increment and add some functionality they can be grouped together in the
+instruction file.</p>
+<p>For our hypoghetical instruction set the instructions file would look something
+like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">__instruction</span> <span class="n">addition</span>
+    <span class="n">__encoding</span> <span class="n">add</span>
+        <span class="n">__decode</span>
+            <span class="n">integer</span> <span class="n">op1</span> <span class="o">=</span> <span class="n">UInt</span><span class="p">(</span><span class="n">operand1</span><span class="p">);</span>
+            <span class="n">integer</span> <span class="n">op2</span> <span class="o">=</span> <span class="n">UInt</span><span class="p">(</span><span class="n">operand2</span><span class="p">);</span>
+
+    <span class="n">__encoding</span> <span class="n">increment</span>
+        <span class="n">__decode</span>
+            <span class="n">integer</span> <span class="n">op1</span> <span class="o">=</span> <span class="n">UInt</span><span class="p">(</span><span class="n">op</span><span class="p">);</span>
+            <span class="n">integer</span> <span class="n">op2</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="n">__execute</span>
+        <span class="n">integer</span> <span class="n">result</span> <span class="o">=</span> <span class="n">op1</span> <span class="o">+</span> <span class="n">op2</span><span class="p">;</span>
+
+<span class="n">__instruction</span> <span class="n">subtraction</span>
+    <span class="n">__encoding</span> <span class="n">subtract</span>
+        <span class="n">__decode</span>
+            <span class="n">integer</span> <span class="n">op1</span> <span class="o">=</span> <span class="n">UInt</span><span class="p">(</span><span class="n">operand1</span><span class="p">);</span>
+            <span class="n">integer</span> <span class="n">op2</span> <span class="o">=</span> <span class="n">UInt</span><span class="p">(</span><span class="n">operand2</span><span class="p">);</span>
+
+    <span class="n">__execute</span>
+        <span class="n">integer</span> <span class="n">result</span> <span class="o">=</span> <span class="n">op1</span> <span class="o">-</span> <span class="n">op2</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="processed-asl">
+<h2>Processed ASL<a class="headerlink" href="#processed-asl" title="Permalink to this headline">¶</a></h2>
+<p>Python-like indentation cannot be described by context-free grammars. This seems
+to be a problem since context-free grammars are the tool for the job to describe
+programming languages. Fortunately, python-like indentation can be turned into
+something that allows description via context-free grammars via a pre-processing
+step. This step inserts extra “BEGIN” and “END” tokens every time the
+indentation is increased or decreased respectively. Additionally for easier
+handling newlines are replaced with a NEWLINE token. ASL that has been
+pre-processed in this way is referred to “processed ASL” in the documentation.</p>
+</div>
 </div>
 
 
@@ -56,7 +159,16 @@
 <h3>Navigation</h3>
 <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-asl">What is ASL?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#decoder-files">Decoder files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#instruction-files">Instruction files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#example-files">Example files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#processed-asl">Processed ASL</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">aslutils</a></li>
 </ul>
