@@ -1,7 +1,7 @@
 # Ignore antlr generated files
-*Visitor.py
-*Parser.py
-*Lexer.py
+ASLVisitor.py
+ASLParser.py
+ASLLexer.py
 *.tokens
 
 
