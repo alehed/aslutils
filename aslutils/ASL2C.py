@@ -8,6 +8,34 @@ from .ASLValueVisitor import ASLValueVisitor
 
 
 class CVisitor(ASLVisitor):
+    """(Internal) Class that generates C code from ASL Code
+
+    Externally, this should not be used directly, but via :func:`asl_to_c`.
+
+    The entry method for parsing should always be :func:`visitStart`. Since the
+    visitor keeps track of variables, for each call to :func:`visitStart` a
+    fresh object should be used.
+
+    The methods return the generated C code as a string. Note that no code is
+    generated for variables that are simply assigned to constants. So in order
+    to generate the "full" valid code for the ASL snippet it is possible that
+    the content of :attr:`self.variables` also has to be taken into account.
+
+    :param variables: A mapping from name to (type: ASLType or None, value) for
+                      all pre-existing variables. This is needed so that when
+                      assigning to one of those variables it is not redeclared
+                      as ASL is somewhat like python with respect to var
+                      declarations.
+    :type variables: {str: (ASLType or None, Any or None)}
+
+    :ivar self.variables: A mapping from variable name to a tuple containing: a
+                     bool which signifies whether the variable already existed
+                     before the snippet (in this order), the type of the
+                     variable as an ASLType or None if unknown. The constant
+                     value of the variable or None if unknown.
+    :vartype self.variables: {str: (bool, ASLType or None, Any or None)}
+    """
+
     def __init__(self, variables):
         self.variables = {key: (True, value[0], value[1]) for (key, value) in variables}
         self.value_visitor = ASLValueVisitor(self)
@@ -260,6 +288,46 @@ class CVisitor(ASLVisitor):
 
 
 def asl_to_c(string, fields):
+    """Converts the given ASL processed string into a c program snippet
+
+    For instance the following ASL code::
+
+        integer bits_d = 4;
+        integer bits_f = 5 * UInt(op) + 3;
+
+    Will be processed to::
+
+        integer bits_d = 4; NEWLINE integer bits_f = 5 * op + 3;
+
+    Assuming op is a 5 bit field declared before, the processed code along with:
+    `[(op, 5)]` will be passed into :func:`asl_to_c`. The result of the function
+    call would be the string::
+
+        int64_t bits_f = 5 * (u_int64_t)op + 3;
+
+    And the variable table::
+
+        {'op': (True, ASLType(ASLType.Kind.bits, 5), None),
+         'bits_d': (False, ASLType(ASLType.Kind.int), 4),
+         'bits_f': (False, ASLType(ASLType.Kind.int), None)}
+
+    Note that the code for `bits_d` is not generated but this information is
+    passed out via the variable table.
+
+    :param string: ASL snippet string. The ASL code has to contain special
+                   tokens for structure instead of indentation and newlines.
+    :type string: str
+    :param fields: A list of fields, each specified by a names and a length (in
+                   bits).
+    :type fields: [(str, int)]
+
+    :returns: A pair containing a variable map and the generated c code. The
+              variable map maps from variable name to if it already existed
+              before the snippet, its type (if known) and its value (if it's a
+              known constant).
+    :rtype: ({str: (bool, ASLType or None, Any)}, str)
+    """
+
     input = InputStream(string)
     lexer = ASLLexer(input)
     stream = CommonTokenStream(lexer)

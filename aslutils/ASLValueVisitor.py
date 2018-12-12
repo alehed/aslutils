@@ -3,6 +3,19 @@ from .ASLVisitor import ASLVisitor
 
 
 class ASLValueVisitor(ASLVisitor):
+    """Visits expressions and returns their value as a python type if it's a constant otherwise None.
+
+    For bits a value of type int is returned. For bitpatterns the returned value
+    is the pair of (value: int, mask: int). For other a string is returned.
+    For the other types (int, bool, real) a value of the directly corresponding
+    python type is returned (so: int, bool, float).
+
+    :param parent: The parent object that invokes this object. The parent object
+                   must have a field named `type_visitor` which is of type
+                   ASLTypeVisitor and a field named `value_visitor` which stores
+                   this object.
+    """
+
     def __init__(self, parent):
         self.parent = parent
 

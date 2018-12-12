@@ -4,6 +4,19 @@ from .ASLType import ASLType
 
 
 class ASLTypeVisitor(ASLVisitor):
+    """Visits expressions and returns an ASLType or None
+
+    Does minimal typechecking with asserts. If the visitor visits code
+    containing type errors, it might return the wrong type (it is not guaranteed
+    to complain when there are type errors). If the type can't be inferred, it
+    returns None.
+
+    :param parent: The parent object that invokes this object. The parent object
+                   must have a field named `value_visitor` which is of type
+                   ASLValueVisitor and a field named `type_visitor` which stores
+                   this object.
+    """
+
     def __init__(self, parent):
         self.parent = parent
 
