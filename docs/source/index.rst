@@ -9,6 +9,8 @@ Welcome to aslutils's documentation!
 .. toctree::
    :caption: Contents:
    
+   introduction.rst
+   tutorial.rst
    modules.rst
 
 
