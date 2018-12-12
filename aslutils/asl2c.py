@@ -2,9 +2,9 @@ from antlr4 import InputStream, CommonTokenStream
 from .ASLLexer import ASLLexer
 from .ASLParser import ASLParser
 from .ASLVisitor import ASLVisitor
-from .ASLType import ASLType
-from .ASLTypeVisitor import ASLTypeVisitor
-from .ASLValueVisitor import ASLValueVisitor
+from .asl_type import ASLType
+from .asl_type_visitor import ASLTypeVisitor
+from .asl_value_visitor import ASLValueVisitor
 
 
 class CVisitor(ASLVisitor):

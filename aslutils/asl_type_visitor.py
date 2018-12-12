@@ -1,6 +1,6 @@
 from .ASLParser import ASLParser
 from .ASLVisitor import ASLVisitor
-from .ASLType import ASLType
+from .asl_type import ASLType
 
 
 class ASLTypeVisitor(ASLVisitor):
