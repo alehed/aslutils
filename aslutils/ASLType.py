@@ -4,7 +4,7 @@ from enum import Enum
 class ASLType():
     class Kind(Enum):
         bits = 1
-        bitmask = 2
+        bitpattern = 2
         int = 3
         bool = 4
         real = 5

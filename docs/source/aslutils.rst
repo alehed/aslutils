@@ -4,6 +4,14 @@ aslutils package
 Submodules
 ----------
 
+aslutils.ASL2C module
+---------------------
+
+.. automodule:: aslutils.ASL2C
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 aslutils.ASLLexer module
 ------------------------
 
@@ -28,6 +36,22 @@ aslutils.ASLType module
     :undoc-members:
     :show-inheritance:
 
+aslutils.ASLTypeVisitor module
+------------------------------
+
+.. automodule:: aslutils.ASLTypeVisitor
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+aslutils.ASLValueVisitor module
+-------------------------------
+
+.. automodule:: aslutils.ASLValueVisitor
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 aslutils.ASLVisitor module
 --------------------------
 
@@ -36,34 +60,10 @@ aslutils.ASLVisitor module
     :undoc-members:
     :show-inheritance:
 
-aslutils.parse\_asl module
---------------------------
-
-.. automodule:: aslutils.parse_asl
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 aslutils.parse\_asl\_file module
 --------------------------------
 
 .. automodule:: aslutils.parse_asl_file
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-aslutils.typevisitor module
----------------------------
-
-.. automodule:: aslutils.typevisitor
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-aslutils.valuevisitor module
-----------------------------
-
-.. automodule:: aslutils.valuevisitor
     :members:
     :undoc-members:
     :show-inheritance:

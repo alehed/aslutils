@@ -3,17 +3,15 @@ from .ASLLexer import ASLLexer
 from .ASLParser import ASLParser
 from .ASLVisitor import ASLVisitor
 from .ASLType import ASLType
-from .typevisitor import TypeVisitor
-from .valuevisitor import ValueVisitor
+from .ASLTypeVisitor import ASLTypeVisitor
+from .ASLValueVisitor import ASLValueVisitor
 
 
-class MyVisitor(ASLVisitor):
-
+class CVisitor(ASLVisitor):
     def __init__(self, variables):
-        # maps name to (don't generate, type, value)
-        self.variables = variables
-        self.value_visitor = ValueVisitor(self)
-        self.type_visitor = TypeVisitor(self)
+        self.variables = {key: (True, value[0], value[1]) for (key, value) in variables}
+        self.value_visitor = ASLValueVisitor(self)
+        self.type_visitor = ASLTypeVisitor(self)
 
     def visitStart(self, ctx: ASLParser.StartContext):
         result = []
@@ -42,6 +40,7 @@ class MyVisitor(ASLVisitor):
             first = True
             for i in range(len(ctx.When())):
                 literal_or_ident = self.visit(ctx.getChild(i*3 + 5))
+                # TODO: Handle bitpatterns correctly
                 if first:
                     result.append("if (({0}) == {1}) {{".format(expr, literal_or_ident))
                     first = False
@@ -246,8 +245,8 @@ class MyVisitor(ASLVisitor):
         elif ctx.BitVector():
             pattern = ctx.BitVector().getText()[1:-1]
             return '0b' + pattern.translate({ord(' '): ''})
-        elif ctx.BitMask():
-            pattern = ctx.BitMask().getText()[1:-1].translate({ord('x'): '0'})
+        elif ctx.BitPattern():
+            pattern = ctx.BitPattern().getText()[1:-1].translate({ord(' '): '', ord('x'): '0'})
             return '0b' + pattern
         elif ctx.FixedPointNum():
             return ctx.FixedPointNum().getText()
@@ -260,7 +259,7 @@ class MyVisitor(ASLVisitor):
         raise Exception("Error")
 
 
-def parse_asl(string, fields):
+def asl_to_c(string, fields):
     input = InputStream(string)
     lexer = ASLLexer(input)
     stream = CommonTokenStream(lexer)
@@ -270,7 +269,7 @@ def parse_asl(string, fields):
     # print(lisp_tree_str)
     variables = {}
     for field in fields:
-        variables[field[0]] = (True, ASLType(ASLType.Kind.bits, field[1]), None)
-    visitor = MyVisitor(variables)
+        variables[field[0]] = (ASLType(ASLType.Kind.bits, field[1]), None)
+    visitor = CVisitor(variables)
     generated_code = visitor.visit(tree)
     return visitor.variables, generated_code

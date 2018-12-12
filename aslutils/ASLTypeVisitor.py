@@ -3,9 +3,7 @@ from .ASLVisitor import ASLVisitor
 from .ASLType import ASLType
 
 
-class TypeVisitor(ASLVisitor):
-    # Visits expressions and returns a ASLType or None. Does typechecking.
-
+class ASLTypeVisitor(ASLVisitor):
     def __init__(self, parent):
         self.parent = parent
 
@@ -149,9 +147,9 @@ class TypeVisitor(ASLVisitor):
         elif ctx.BitVector():
             pattern = ctx.BitVector().getText()[1:-1].translate({ord(' '): ''})
             return ASLType(ASLType.Kind.bits, len(pattern))
-        elif ctx.BitMask():
-            pattern = ctx.BitMask().getText()[1:-1].translate({ord('x'): '0', ord('0'): '1', ord(' '): ''})
-            return ASLType(ASLType.Kind.bitmask, int(pattern, 2))
+        elif ctx.BitPattern():
+            pattern = ctx.BitPattern().getText()[1:-1].translate({ord(' '): ''})
+            return ASLType(ASLType.Kind.bitpattern, len(pattern))
         elif ctx.FixedPointNum():
             return ASLType(ASLType.Kind.real)
         elif ctx.Bool():

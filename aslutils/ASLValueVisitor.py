@@ -2,9 +2,7 @@ from .ASLParser import ASLParser
 from .ASLVisitor import ASLVisitor
 
 
-class ValueVisitor(ASLVisitor):
-    # Visits expressions and either returns the constant value or None.
-
+class ASLValueVisitor(ASLVisitor):
     def __init__(self, parent):
         self.parent = parent
 
@@ -102,10 +100,11 @@ class ValueVisitor(ASLVisitor):
             return int(ctx.Hex().getText(), 16)
         elif ctx.BitVector():
             pattern = ctx.BitVector().getText()[1:-1].translate({ord(' '): ''})
-            return int('0b' + pattern, 2)
-        elif ctx.BitMask():
-            pattern = ctx.BitMask().getText()[1:-1].translate({ord('x'): '0', ord(' '): ''})
-            return int('0b' + pattern, 2)
+            return int(pattern, 2)
+        elif ctx.BitPattern():
+            value = ctx.BitPattern().getText()[1:-1].translate({ord('x'): '0', ord(' '): ''})
+            mask = ctx.BitPattern().getText()[1:-1].translate({ord('x'): '0', ord('0'): '1', ord(' '): ''})
+            return (int(value, 2), int(mask, 2))
         elif ctx.FixedPointNum():
             return float(ctx.FixedPointNum().getText())
         elif ctx.Bool():

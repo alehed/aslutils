@@ -65,7 +65,7 @@ literal
    : Integer
    | Hex
    | BitVector
-   | BitMask
+   | BitPattern
    | FixedPointNum
    | Bool
    | String
@@ -186,7 +186,7 @@ BitVector
    : '\'' [01 ]+ '\''
    ;
 
-BitMask
+BitPattern
    : '\'' [01 x]+ '\''
    ;
 
