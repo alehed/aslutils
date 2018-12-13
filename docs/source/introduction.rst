@@ -53,51 +53,51 @@ Add and subtract take the last two bytes as operands.
 
 The example decoder file would look like this::
 
-    __decode arithmetic
-        case (30 +: 2) of
-            when ('00') => __UNUSED
-            when ('01') =>
-                __field op 29 +: 2
-                __field operand1 8 +: 8
-                __field operand2 0 +: 8
-                case (op, operand1, operand2) of
-                    when ('10', _, _) => __encoding subtract
-                    when ('11', _, _) => __encoding add
-            when ('10') =>
-                __field op 24 +: 8
-                field operand 16 +: 8
-                case () of
-                    when () => __encoding increment
-            when ('11') => __UNUSED
+   __decode arithmetic
+     case (30 +: 2) of
+         when ('00') => __UNUSED
+         when ('01') =>
+             __field op 29 +: 2
+             __field operand1 8 +: 8
+             __field operand2 0 +: 8
+             case (op, operand1, operand2) of
+                 when ('10', _, _) => __encoding subtract
+                 when ('11', _, _) => __encoding add
+         when ('10') =>
+             __field op 24 +: 8
+             field operand 16 +: 8
+             case () of
+                 when () => __encoding increment
+         when ('11') => __UNUSED
 
 Since increment and add some functionality they can be grouped together in the
 instruction file.
 
 For our hypoghetical instruction set the instructions file would look something
 like::
-    
-    __instruction addition
-        __encoding add
-            __decode
-                integer op1 = UInt(operand1);
-                integer op2 = UInt(operand2);
 
-        __encoding increment
-            __decode
-                integer op1 = UInt(op);
-                integer op2 = 1;
+   __instruction addition
+       __encoding add
+           __decode
+               integer op1 = UInt(operand1);
+               integer op2 = UInt(operand2);
 
-        __execute
-            integer result = op1 + op2;
-    
-    __instruction subtraction
-        __encoding subtract
-            __decode
-                integer op1 = UInt(operand1);
-                integer op2 = UInt(operand2);
-        
-        __execute
-            integer result = op1 - op2;
+       __encoding increment
+           __decode
+               integer op1 = UInt(op);
+               integer op2 = 1;
+
+       __execute
+           integer result = op1 + op2;
+
+   __instruction subtraction
+       __encoding subtract
+           __decode
+               integer op1 = UInt(operand1);
+               integer op2 = UInt(operand2);
+
+       __execute
+           integer result = op1 - op2;
 
 Processed ASL
 -------------
