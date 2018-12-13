@@ -60,7 +60,7 @@ The example decoder file would look like this::
                 __field op 29 +: 2
                 __field operand1 8 +: 8
                 __field operand2 0 +: 8
-                case (op, hi) of
+                case (op, operand1, operand2) of
                     when ('10', _, _) => __encoding subtract
                     when ('11', _, _) => __encoding add
             when ('10') =>
