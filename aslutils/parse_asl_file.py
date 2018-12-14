@@ -285,9 +285,12 @@ def visit_decoder_tree(tree, listener):
             groups = m.groups()
             listener.listen_field(groups[0], int(groups[1]), int(groups[2]))
         elif line.startswith("case"):
-            m = re.fullmatch(r"case \(((?:(\d+) \+: (\d+)|[a-zA-Z]\w*)(?:, (?:(\d+) \+: (\d+)|[a-zA-Z]\w*))*)\) of", line)
-            assert m
-            fields = m.groups()[0].split(", ")
+            empty_match = re.fullmatch(r"case \(\) of", line)
+            fields = []
+            if not empty_match:
+                m = re.fullmatch(r"case \(((?:(\d+) \+: (\d+)|[a-zA-Z]\w*)(?:, (?:(\d+) \+: (\d+)|[a-zA-Z]\w*))*)\) of", line)
+                assert m
+                fields = m.groups()[0].split(", ")
             res_fields = []
             for field in fields:
                 res_fields.append(CaseField(field))
@@ -295,9 +298,12 @@ def visit_decoder_tree(tree, listener):
                 visit_decoder_tree(child[0], listener)
             listener.after_listen_case(res_fields)
         elif line.startswith("when"):
-            m = re.match(r"when \(((?:_|!?'[01x]+'|'[01x]+' to '[01x]+')(?:, (?:_|!?'[01x]+'|'[01x]+' to '[01x]+'))*)\) =>", line)
-            assert m
-            vals = m.groups()[0].split(", ")
+            m = re.match(r"when \(\) =>", line)
+            vals = []
+            if not m:
+                m = re.match(r"when \(((?:_|!?'[01x]+'|'[01x]+' to '[01x]+')(?:, (?:_|!?'[01x]+'|'[01x]+' to '[01x]+'))*)\) =>", line)
+                assert m
+                vals = m.groups()[0].split(", ")
             values = []
             for value in vals:
                 values.append(WhenValue(value))

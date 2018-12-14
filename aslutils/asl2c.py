@@ -37,7 +37,7 @@ class CVisitor(ASLVisitor):
     """
 
     def __init__(self, variables):
-        self.variables = {key: (True, value[0], value[1]) for (key, value) in variables}
+        self.variables = {key: (True, value[0], value[1]) for (key, value) in variables.items()}
         self.value_visitor = ASLValueVisitor(self)
         self.type_visitor = ASLTypeVisitor(self)
 
