@@ -16,7 +16,7 @@ class CVisitor(ASLVisitor):
     visitor keeps track of variables, for each call to :func:`visitStart` a
     fresh object should be used.
 
-    The methods return the generated C code as a string. Note that no code is
+    The methods return the generated C code as a [str]. Note that no code is
     generated for variables that are simply assigned to constants. So in order
     to generate the "full" valid code for the ASL snippet it is possible that
     the content of :attr:`self.variables` also has to be taken into account.
@@ -317,7 +317,7 @@ def asl_to_c(string, fields):
     :param string: ASL snippet string. The ASL code has to contain special
                    tokens for structure instead of indentation and newlines.
     :type string: str
-    :param fields: A list of fields, each specified by a names and a length (in
+    :param fields: A list of fields, each specified by a name and a length (in
                    bits).
     :type fields: [(str, int)]
 
@@ -325,7 +325,7 @@ def asl_to_c(string, fields):
               variable map maps from variable name to if it already existed
               before the snippet, its type (if known) and its value (if it's a
               known constant).
-    :rtype: ({str: (bool, ASLType or None, Any)}, str)
+    :rtype: ({str: (bool, ASLType or None, Any)}, [str])
     """
 
     input = InputStream(string)
