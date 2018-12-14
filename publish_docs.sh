@@ -5,7 +5,7 @@ if git status | grep "Untracked" > /dev/null ; then
     exit 1
 fi
 
-source env/bin/activate
+. env/bin/activate
 
 git stash
 
