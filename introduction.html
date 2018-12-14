@@ -87,12 +87,12 @@ Add and subtract take the last two bytes as operands.</p>
             <span class="n">__field</span> <span class="n">op</span> <span class="mi">29</span> <span class="o">+</span><span class="p">:</span> <span class="mi">2</span>
             <span class="n">__field</span> <span class="n">operand1</span> <span class="mi">8</span> <span class="o">+</span><span class="p">:</span> <span class="mi">8</span>
             <span class="n">__field</span> <span class="n">operand2</span> <span class="mi">0</span> <span class="o">+</span><span class="p">:</span> <span class="mi">8</span>
-            <span class="n">case</span> <span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">hi</span><span class="p">)</span> <span class="n">of</span>
+            <span class="n">case</span> <span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">operand1</span><span class="p">,</span> <span class="n">operand2</span><span class="p">)</span> <span class="n">of</span>
                 <span class="n">when</span> <span class="p">(</span><span class="s1">&#39;10&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="n">__encoding</span> <span class="n">subtract</span>
                 <span class="n">when</span> <span class="p">(</span><span class="s1">&#39;11&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="n">__encoding</span> <span class="n">add</span>
         <span class="n">when</span> <span class="p">(</span><span class="s1">&#39;10&#39;</span><span class="p">)</span> <span class="o">=&gt;</span>
             <span class="n">__field</span> <span class="n">op</span> <span class="mi">24</span> <span class="o">+</span><span class="p">:</span> <span class="mi">8</span>
-            <span class="n">field</span> <span class="n">operand</span> <span class="mi">16</span> <span class="o">+</span><span class="p">:</span> <span class="mi">8</span>
+            <span class="n">__field</span> <span class="n">operand</span> <span class="mi">16</span> <span class="o">+</span><span class="p">:</span> <span class="mi">8</span>
             <span class="n">case</span> <span class="p">()</span> <span class="n">of</span>
                 <span class="n">when</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="n">__encoding</span> <span class="n">increment</span>
         <span class="n">when</span> <span class="p">(</span><span class="s1">&#39;11&#39;</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="n">__UNUSED</span>
@@ -110,7 +110,7 @@ like:</p>
 
     <span class="n">__encoding</span> <span class="n">increment</span>
         <span class="n">__decode</span>
-            <span class="n">integer</span> <span class="n">op1</span> <span class="o">=</span> <span class="n">UInt</span><span class="p">(</span><span class="n">op</span><span class="p">);</span>
+            <span class="n">integer</span> <span class="n">op1</span> <span class="o">=</span> <span class="n">UInt</span><span class="p">(</span><span class="n">operand</span><span class="p">);</span>
             <span class="n">integer</span> <span class="n">op2</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
 
     <span class="n">__execute</span>

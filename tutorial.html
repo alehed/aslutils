@@ -35,6 +35,284 @@
             
   <div class="section" id="tutorial">
 <h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<p>From a user perspective the interesting modules are <code class="xref py py-mod docutils literal notranslate"><span class="pre">parse_asl_file</span></code>
+which exports functionality to parse the different kinds of asl files and the
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">asl2c</span></code> which exports a function (<code class="xref py py-func docutils literal notranslate"><span class="pre">asl_to_c()</span></code>) that can convert
+pseudocode ASL to C code. In this short tutorial we will look at how to
+integrate both modules in order to produce an c interpreter for the instruction
+set discussed in the introduction section.</p>
+<p>For reference, the decoder file is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">__decode</span> <span class="n">arithmetic</span>
+    <span class="n">case</span> <span class="p">(</span><span class="mi">30</span> <span class="o">+</span><span class="p">:</span> <span class="mi">2</span><span class="p">)</span> <span class="n">of</span>
+        <span class="n">when</span> <span class="p">(</span><span class="s1">&#39;00&#39;</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="n">__UNUSED</span>
+        <span class="n">when</span> <span class="p">(</span><span class="s1">&#39;01&#39;</span><span class="p">)</span> <span class="o">=&gt;</span>
+            <span class="n">__field</span> <span class="n">op</span> <span class="mi">29</span> <span class="o">+</span><span class="p">:</span> <span class="mi">2</span>
+            <span class="n">__field</span> <span class="n">operand1</span> <span class="mi">8</span> <span class="o">+</span><span class="p">:</span> <span class="mi">8</span>
+            <span class="n">__field</span> <span class="n">operand2</span> <span class="mi">0</span> <span class="o">+</span><span class="p">:</span> <span class="mi">8</span>
+            <span class="n">case</span> <span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">operand1</span><span class="p">,</span> <span class="n">operand2</span><span class="p">)</span> <span class="n">of</span>
+                <span class="n">when</span> <span class="p">(</span><span class="s1">&#39;10&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="n">__encoding</span> <span class="n">subtract</span>
+                <span class="n">when</span> <span class="p">(</span><span class="s1">&#39;11&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="n">__encoding</span> <span class="n">add</span>
+        <span class="n">when</span> <span class="p">(</span><span class="s1">&#39;10&#39;</span><span class="p">)</span> <span class="o">=&gt;</span>
+            <span class="n">__field</span> <span class="n">op</span> <span class="mi">24</span> <span class="o">+</span><span class="p">:</span> <span class="mi">8</span>
+            <span class="n">__field</span> <span class="n">operand</span> <span class="mi">16</span> <span class="o">+</span><span class="p">:</span> <span class="mi">8</span>
+            <span class="n">case</span> <span class="p">()</span> <span class="n">of</span>
+                <span class="n">when</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="n">__encoding</span> <span class="n">increment</span>
+        <span class="n">when</span> <span class="p">(</span><span class="s1">&#39;11&#39;</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="n">__UNUSED</span>
+</pre></div>
+</div>
+<p>and the instruction file is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">__instruction</span> <span class="n">addition</span>
+    <span class="n">__encoding</span> <span class="n">add</span>
+        <span class="n">__decode</span>
+            <span class="n">integer</span> <span class="n">op1</span> <span class="o">=</span> <span class="n">UInt</span><span class="p">(</span><span class="n">operand1</span><span class="p">);</span>
+            <span class="n">integer</span> <span class="n">op2</span> <span class="o">=</span> <span class="n">UInt</span><span class="p">(</span><span class="n">operand2</span><span class="p">);</span>
+
+    <span class="n">__encoding</span> <span class="n">increment</span>
+        <span class="n">__decode</span>
+            <span class="n">integer</span> <span class="n">op1</span> <span class="o">=</span> <span class="n">UInt</span><span class="p">(</span><span class="n">operand</span><span class="p">);</span>
+            <span class="n">integer</span> <span class="n">op2</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+    <span class="n">__execute</span>
+        <span class="n">integer</span> <span class="n">result</span> <span class="o">=</span> <span class="n">op1</span> <span class="o">+</span> <span class="n">op2</span><span class="p">;</span>
+
+<span class="n">__instruction</span> <span class="n">subtraction</span>
+    <span class="n">__encoding</span> <span class="n">subtract</span>
+        <span class="n">__decode</span>
+            <span class="n">integer</span> <span class="n">op1</span> <span class="o">=</span> <span class="n">UInt</span><span class="p">(</span><span class="n">operand1</span><span class="p">);</span>
+            <span class="n">integer</span> <span class="n">op2</span> <span class="o">=</span> <span class="n">UInt</span><span class="p">(</span><span class="n">operand2</span><span class="p">);</span>
+
+    <span class="n">__execute</span>
+        <span class="n">integer</span> <span class="n">result</span> <span class="o">=</span> <span class="n">op1</span> <span class="o">-</span> <span class="n">op2</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>At first we will parse the instruction file in order to get the decode and
+execute code associated with each instruction. All we have to do here is
+fill two maps, one that maps from encoding name to decoder code, the other that
+maps from encoding name to execute code. Usually what you want to do there is
+just save the ASL code and transform it later once the context and the available
+variable names are known, but here the example so simple that we can do the
+transformation right in the listener of the instruction file.</p>
+<p>In order to get the c code from the ASL, we will use the <code class="xref py py-func docutils literal notranslate"><span class="pre">asl_to_c()</span></code>
+function.</p>
+<p>The instruction listener would probably look something like this:</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">InstrListener</span><span class="p">(</span><span class="n">NopInstrsListener</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encodings</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decode_map</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">execute_map</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">listen_instruction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encodings</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">listen_encoding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encodings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">listen_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+        <span class="nb">vars</span><span class="p">,</span> <span class="n">c_code</span> <span class="o">=</span> <span class="n">asl_to_c</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">decls</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">varname</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">var</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">var</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">var</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">var</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">ASLType</span><span class="o">.</span><span class="n">Kind</span><span class="o">.</span><span class="n">int</span><span class="p">:</span>
+                    <span class="n">decls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;int64_t {0} = {1};&quot;</span>
+                                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span> <span class="n">var</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="n">c_code</span> <span class="o">=</span> <span class="n">decls</span> <span class="o">+</span> <span class="n">c_code</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decode_map</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">encodings</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">c_code</span>
+
+    <span class="k">def</span> <span class="nf">listen_execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+        <span class="c1"># Here we don&#39;t expect any declarations</span>
+        <span class="n">c_code</span> <span class="o">=</span> <span class="n">asl_to_c</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="p">[(</span><span class="s2">&quot;result&quot;</span><span class="p">,</span> <span class="mi">64</span><span class="p">)])[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">encoding</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">encodings</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">execute_map</span><span class="p">[</span><span class="n">encoding</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_code</span>
+</pre></div>
+</td></tr></table></div>
+<p>As documented, asl_to_c returns an array of c code lines which we store in the
+corresponding map. In case of <code class="xref py py-func docutils literal notranslate"><span class="pre">listen_decode()</span></code> some of the variables might
+be initialized to constants and therefor don’t appear in the C code. Those
+variables need to be added manually to the code. Here we pull a shortcut
+assuming all variables are of type integer.</p>
+<p>Now, all that is left is to parse the decoder using another listener and
+generating code this time.</p>
+<p>The decoder listener looks something like this:</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DecoderListener</span><span class="p">(</span><span class="n">NopDecodeListener</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decodemap</span><span class="p">,</span> <span class="n">executemap</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decode_map</span> <span class="o">=</span> <span class="n">decodemap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">execute_map</span> <span class="o">=</span> <span class="n">executemap</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields_stack</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">listen_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields_stack</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span>
+                                  <span class="k">else</span> <span class="s2">&quot;((word &gt;&gt; {0}) &amp; ((1 &lt;&lt; {1}) - 1))&quot;</span>
+                                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">run</span><span class="p">)</span>
+                                  <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">after_listen_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;{</span><span class="se">\n</span><span class="s1">assert(0);</span><span class="se">\n</span><span class="s1">}&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields_stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">listen_when</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="n">components</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;{0} == {1}&quot;</span>
+                                  <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields_stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                                          <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">components</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;if (1) {&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;if (({0})) {{&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;) &amp;&amp; (&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">components</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">after_listen_when</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;} else&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">listen_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">run</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;u_int64_t {0} = (word &gt;&gt; {1}) &amp; ((1 &lt;&lt; {2}) - 1);&quot;</span>
+              <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">run</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">listen_encoding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">decode_map</span><span class="p">[</span><span class="n">name</span><span class="p">]))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">execute_map</span><span class="p">[</span><span class="n">name</span><span class="p">]))</span>
+
+    <span class="k">def</span> <span class="nf">listen_unused</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;assert(0);&#39;</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>This leaves us with the code that puts all the pieces together. In essence this
+generates a static prefix and a suffix, between which the generated code is
+emitted. Note that the generated code is quite unreadable as it doesn’t use
+indentation. By looking at the depth of the field stack, the appropriate amount
+of indentation can be inferred.</p>
+<p>It would probably look something like this:</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;#include &lt;stdio.h&gt;</span>
+<span class="s2">#include &lt;sys/types.h&gt;</span>
+<span class="s2">#include &lt;assert.h&gt;</span>
+
+<span class="s2">#define UInt(num) ((u_int64_t)num)</span>
+
+<span class="s2">int main() {</span>
+<span class="s2">int64_t result;</span>
+<span class="s2">u_int32_t word = 0x80FE0000;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="k">print</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
+
+<span class="n">l1</span> <span class="o">=</span> <span class="n">InstrListener</span><span class="p">()</span>
+<span class="n">parse_asl_instructions_file</span><span class="p">(</span><span class="s1">&#39;arithmetic-instrs.asl&#39;</span><span class="p">,</span> <span class="n">l1</span><span class="p">)</span>
+
+<span class="n">l2</span> <span class="o">=</span> <span class="n">DecoderListener</span><span class="p">(</span><span class="n">l1</span><span class="o">.</span><span class="n">decode_map</span><span class="p">,</span> <span class="n">l1</span><span class="o">.</span><span class="n">execute_map</span><span class="p">)</span>
+<span class="n">parse_asl_decoder_file</span><span class="p">(</span><span class="s1">&#39;arithmetic-decoder.asl&#39;</span><span class="p">,</span> <span class="n">l2</span><span class="p">)</span>
+
+<span class="n">suffix</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;printf(&quot;0x</span><span class="si">%lx</span><span class="se">\\</span><span class="s2">n&quot;, result);</span>
+<span class="s2">return 0;</span>
+<span class="s2">}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="k">print</span><span class="p">(</span><span class="n">suffix</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<p>Despite taking some shortcuts here and there, we have seen a complete example of
+generating an interpreter for the small instruction set. The generated code will
+print out 0xFF.</p>
 </div>
 
 

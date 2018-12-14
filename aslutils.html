@@ -1928,7 +1928,7 @@
 <p>The entry method for parsing should always be <a class="reference internal" href="#aslutils.asl2c.CVisitor.visitStart" title="aslutils.asl2c.CVisitor.visitStart"><code class="xref py py-func docutils literal notranslate"><span class="pre">visitStart()</span></code></a>. Since the
 visitor keeps track of variables, for each call to <a class="reference internal" href="#aslutils.asl2c.CVisitor.visitStart" title="aslutils.asl2c.CVisitor.visitStart"><code class="xref py py-func docutils literal notranslate"><span class="pre">visitStart()</span></code></a> a
 fresh object should be used.</p>
-<p>The methods return the generated C code as a string. Note that no code is
+<p>The methods return the generated C code as a [str]. Note that no code is
 generated for variables that are simply assigned to constants. So in order
 to generate the “full” valid code for the ASL snippet it is possible that
 the content of <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.variables</span></code> also has to be taken into account.</p>
@@ -2026,7 +2026,7 @@ passed out via the variable table.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>string</strong> (<em>str</em>) – ASL snippet string. The ASL code has to contain special
 tokens for structure instead of indentation and newlines.</li>
-<li><strong>fields</strong> (<em>[</em><em>(</em><em>str</em><em>, </em><em>int</em><em>)</em><em>]</em>) – A list of fields, each specified by a names and a length (in
+<li><strong>fields</strong> (<em>[</em><em>(</em><em>str</em><em>, </em><em>int</em><em>)</em><em>]</em>) – A list of fields, each specified by a name and a length (in
 bits).</li>
 </ul>
 </td>
@@ -2037,7 +2037,7 @@ before the snippet, its type (if known) and its value (if it’s a
 known constant).</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">({str: (bool, <a class="reference internal" href="#aslutils.asl_type.ASLType" title="aslutils.asl_type.ASLType">ASLType</a> or None, Any)}, str)</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">({str: (bool, <a class="reference internal" href="#aslutils.asl_type.ASLType" title="aslutils.asl_type.ASLType">ASLType</a> or None, Any)}, [str])</p>
 </td>
 </tr>
 </tbody>
