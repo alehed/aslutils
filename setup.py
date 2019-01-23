@@ -35,7 +35,7 @@ with open("readme.md", "r") as fh:
 
 setuptools.setup(
     name="aslutils",
-    version="0.1.0",
+    version="0.1.1",
     author="Alexander Hedges",
     author_email="ahedges@ethz.ch",
     description="Code to parse Arm Specification Language (ASL) files",
