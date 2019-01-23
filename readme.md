@@ -8,6 +8,10 @@ Preferably this is installed in a virtual environment. To create a virtual envir
 
 To install simply use pip: `pip3 install aslutils`.
 
+### Installing for development
+
+To install the package for development, clone it and then install it in editable mode: `pip3 install -e /path/to/aslutils/` (i.e. the directory that contains setup.py).
+
 ## Using aslutils
 
 The documentation can be found at <https://alehed.github.io/aslutils/>
