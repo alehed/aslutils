@@ -38,4 +38,4 @@ Note: I am currently the sole packager of this project, so this section is only 
 
 Once antlr is installed, this step is easy. The dependencies for packaging are: wheel, setuptools and twine (`pip install wheel setuptools twine`)
 
-First the package needs to be generated with: `python setup.py sdist bdist_wheel --universal`. Then the package can be uploaded using twine: `twine upload dist/*`.
+After old versions are removed from the dist directory `rm dist/*`, the package needs to be generated with: `python setup.py sdist bdist_wheel --universal`. Then it can be uploaded using twine: `twine upload dist/*`.
