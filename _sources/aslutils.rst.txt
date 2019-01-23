@@ -28,10 +28,26 @@ aslutils.ASLVisitor module
     :undoc-members:
     :show-inheritance:
 
+aslutils.asl2 module
+--------------------
+
+.. automodule:: aslutils.asl2
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 aslutils.asl2c module
 ---------------------
 
 .. automodule:: aslutils.asl2c
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+aslutils.asl2vhd module
+-----------------------
+
+.. automodule:: aslutils.asl2vhd
     :members:
     :undoc-members:
     :show-inheritance:
