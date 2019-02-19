@@ -110,16 +110,16 @@ class PythonVisitor(ASLVisitor):
                     type = self.type_visitor.visit(ctx.typeName())
                     self.variables[name] = (False, type, None)
         elif ctx.Undefined():
-            result.append("undefined();")
+            result.append("undefined()")
         elif ctx.Unpredictable():
-            result.append("unpredictable();")
+            result.append("unpredictable()")
         elif ctx.See():
             result.append("// see {0}".format(self.visit(ctx.expression(0))))
         elif ctx.Assert():
-            result.append("assert({0});".format(self.visit(ctx.expression(0))))
+            result.append("assert {0}".format(self.visit(ctx.expression(0))))
         elif ctx.LeftParen():
             args = list(map(lambda x: self.visit(x), ctx.expression()))
-            result.append("// {0}({1});".format(ctx.Identifier(0).getText(), ", ".join(args)))
+            result.append("// {0}({1})".format(ctx.Identifier(0).getText(), ", ".join(args)))
         else:
             print(ctx.getText())
             assert False
@@ -218,7 +218,9 @@ class PythonVisitor(ASLVisitor):
         else:
             if ctx.Mult():
                 operator = "*"
-            elif ctx.Div() or ctx.Divide():
+            elif ctx.Div():
+                operator = "//"
+            elif ctx.Divide():
                 operator = "/"
             elif ctx.Mod():
                 operator = "%"
