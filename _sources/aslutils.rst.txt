@@ -44,6 +44,14 @@ aslutils.asl2c module
     :undoc-members:
     :show-inheritance:
 
+aslutils.asl2py module
+----------------------
+
+.. automodule:: aslutils.asl2py
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 aslutils.asl2vhd module
 -----------------------
 

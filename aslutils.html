@@ -2079,6 +2079,112 @@ known constant).</p>
 </dd></dl>
 
 </div>
+<div class="section" id="module-aslutils.asl2py">
+<span id="aslutils-asl2py-module"></span><h2>aslutils.asl2py module<a class="headerlink" href="#module-aslutils.asl2py" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="aslutils.asl2py.PythonVisitor">
+<em class="property">class </em><code class="descclassname">aslutils.asl2py.</code><code class="descname">PythonVisitor</code><span class="sig-paren">(</span><em>variables</em><span class="sig-paren">)</span><a class="headerlink" href="#aslutils.asl2py.PythonVisitor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aslutils.ASLVisitor.ASLVisitor" title="aslutils.ASLVisitor.ASLVisitor"><code class="xref py py-class docutils literal notranslate"><span class="pre">aslutils.ASLVisitor.ASLVisitor</span></code></a></p>
+<p>(Internal) Class that generates Python code from ASL Code</p>
+<p>Externally, this should not be used directly, but via <a class="reference internal" href="#aslutils.asl2py.asl_to_py" title="aslutils.asl2py.asl_to_py"><code class="xref py py-func docutils literal notranslate"><span class="pre">asl_to_py()</span></code></a>.</p>
+<p>The entry method for parsing should always be <a class="reference internal" href="#aslutils.asl2py.PythonVisitor.visitStart" title="aslutils.asl2py.PythonVisitor.visitStart"><code class="xref py py-func docutils literal notranslate"><span class="pre">visitStart()</span></code></a>. Since the
+visitor keeps track of variables, for each call to <a class="reference internal" href="#aslutils.asl2py.PythonVisitor.visitStart" title="aslutils.asl2py.PythonVisitor.visitStart"><code class="xref py py-func docutils literal notranslate"><span class="pre">visitStart()</span></code></a> a
+fresh object should be used.</p>
+<p>The methods return the generated C code as a [str]. Note that no code is
+generated for variables that are simply assigned to constants. So in order
+to generate the “full” valid code for the ASL snippet it is possible that
+the content of <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.variables</span></code> also has to be taken into account.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>variables</strong> (<em>{str:</em><em> (</em><a class="reference internal" href="#aslutils.asl_type.ASLType" title="aslutils.asl_type.ASLType"><em>ASLType</em></a><em> or </em><em>None</em><em>, </em><em>Any</em><em> or </em><em>None</em><em>)</em><em>}</em>) – A mapping from name to (type: ASLType or None, value) for
+all pre-existing variables. This is needed so that when
+assigning to one of those variables it is not redeclared
+as ASL is somewhat like python with respect to var
+declarations.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Variables:</th><td class="field-body"><strong>self.variables</strong> (<em>{str:</em><em> (</em><em>bool</em><em>, </em><a class="reference internal" href="#aslutils.asl_type.ASLType" title="aslutils.asl_type.ASLType"><em>ASLType</em></a><em> or </em><em>None</em><em>, </em><em>Any</em><em> or </em><em>None</em><em>)</em><em>}</em>) – A mapping from variable name to a tuple containing: a
+bool which signifies whether the variable already existed
+before the snippet (in this order), the type of the
+variable as an ASLType or None if unknown. The constant
+value of the variable or None if unknown.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="aslutils.asl2py.PythonVisitor.visitAssignableExpr">
+<code class="descname">visitAssignableExpr</code><span class="sig-paren">(</span><em>ctx: aslutils.ASLParser.ASLParser.AssignableExprContext</em><span class="sig-paren">)</span><a class="headerlink" href="#aslutils.asl2py.PythonVisitor.visitAssignableExpr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aslutils.asl2py.PythonVisitor.visitBlock">
+<code class="descname">visitBlock</code><span class="sig-paren">(</span><em>ctx: aslutils.ASLParser.ASLParser.BlockContext</em><span class="sig-paren">)</span><a class="headerlink" href="#aslutils.asl2py.PythonVisitor.visitBlock" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aslutils.asl2py.PythonVisitor.visitErrorNode">
+<code class="descname">visitErrorNode</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="headerlink" href="#aslutils.asl2py.PythonVisitor.visitErrorNode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aslutils.asl2py.PythonVisitor.visitExpression">
+<code class="descname">visitExpression</code><span class="sig-paren">(</span><em>ctx: aslutils.ASLParser.ASLParser.ExpressionContext</em><span class="sig-paren">)</span><a class="headerlink" href="#aslutils.asl2py.PythonVisitor.visitExpression" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aslutils.asl2py.PythonVisitor.visitLiteral">
+<code class="descname">visitLiteral</code><span class="sig-paren">(</span><em>ctx: aslutils.ASLParser.ASLParser.LiteralContext</em><span class="sig-paren">)</span><a class="headerlink" href="#aslutils.asl2py.PythonVisitor.visitLiteral" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aslutils.asl2py.PythonVisitor.visitSimpleStatement">
+<code class="descname">visitSimpleStatement</code><span class="sig-paren">(</span><em>ctx: aslutils.ASLParser.ASLParser.SimpleStatementContext</em><span class="sig-paren">)</span><a class="headerlink" href="#aslutils.asl2py.PythonVisitor.visitSimpleStatement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aslutils.asl2py.PythonVisitor.visitStart">
+<code class="descname">visitStart</code><span class="sig-paren">(</span><em>ctx: aslutils.ASLParser.ASLParser.StartContext</em><span class="sig-paren">)</span><a class="headerlink" href="#aslutils.asl2py.PythonVisitor.visitStart" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="aslutils.asl2py.PythonVisitor.visitStatement">
+<code class="descname">visitStatement</code><span class="sig-paren">(</span><em>ctx: aslutils.ASLParser.ASLParser.StatementContext</em><span class="sig-paren">)</span><a class="headerlink" href="#aslutils.asl2py.PythonVisitor.visitStatement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="aslutils.asl2py.asl_to_py">
+<code class="descclassname">aslutils.asl2py.</code><code class="descname">asl_to_py</code><span class="sig-paren">(</span><em>string</em>, <em>fields</em><span class="sig-paren">)</span><a class="headerlink" href="#aslutils.asl2py.asl_to_py" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the given processed ASL string into a python program snippet</p>
+<p>Calls <code class="xref py py-func docutils literal notranslate"><span class="pre">asl_to_lang()</span></code>, for more information check it’s documentation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>string</strong> (<em>str</em>) – ASL snippet string. The ASL code has to contain special
+tokens for structure instead of indentation and newlines.</li>
+<li><strong>fields</strong> (<em>[</em><em>(</em><em>str</em><em>, </em><em>int</em><em>)</em><em>]</em>) – A list of fields, each specified by a name and a length (in
+bits).</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A pair containing a variable map and the generated c code. The
+variable map maps from variable name to if it already existed
+before the snippet, its type (if known) and its value (if it’s a
+known constant).</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">({str: (bool, <a class="reference internal" href="#aslutils.asl_type.ASLType" title="aslutils.asl_type.ASLType">ASLType</a> or None, Any)}, [str])</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
 <div class="section" id="module-aslutils.asl2vhd">
 <span id="aslutils-asl2vhd-module"></span><h2>aslutils.asl2vhd module<a class="headerlink" href="#module-aslutils.asl2vhd" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -2808,6 +2914,7 @@ by NopInstrsListener.</li>
 <li class="toctree-l3"><a class="reference internal" href="#module-aslutils.ASLVisitor">aslutils.ASLVisitor module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-aslutils.asl2">aslutils.asl2 module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-aslutils.asl2c">aslutils.asl2c module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-aslutils.asl2py">aslutils.asl2py module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-aslutils.asl2vhd">aslutils.asl2vhd module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-aslutils.asl_type">aslutils.asl_type module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-aslutils.asl_type_visitor">aslutils.asl_type_visitor module</a></li>
