@@ -46,7 +46,7 @@ Again, this is only for myself.
 
  1. Decide to do a new release
  1. Fully regenerate the documentation and commit the changes
- 1. Bump the version in setup.py
+ 1. Bump the version in setup.py and commit
  1. Tag the latest commit and push it
  1. Publish the documentation with the provided script
- 1. Do the step described in packaging
+ 1. Do the steps described in packaging
